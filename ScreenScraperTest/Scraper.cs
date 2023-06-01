@@ -19,22 +19,28 @@ namespace ScreenScraperTest
         [Function("Scraper")]
         public void Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] Microsoft.Azure.Functions.Worker.Http.HttpRequestData req)
         {
-            string fullUrl = "https://mtd.mitsui.com/en";
+            string fullUrl = "https://mtd.mitsui.com/en/TelephoneDirectory/DivisionPage?dp=DP20160513113";
             List<string> programmerLinks = new List<string>();
 
             var options = new EdgeOptions()
             {
                 BinaryLocation = "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe"
             };
+            Console.WriteLine("Options created");
 
             options.AddArguments(new List<string>() { "headless", "disable-gpu" });
+            Console.WriteLine("Added options to arguments");
 
             var service = EdgeDriverService.CreateDefaultService();
+            Console.WriteLine("Service Created");
             service.Port = 40000;
             service.Start();
+            Console.WriteLine("Service started");
 
             var browser = new EdgeDriver(service, options);
+            Console.WriteLine("Browser Initialized");
             browser.Navigate().GoToUrl(fullUrl);
+            Console.WriteLine("Browser navigated to URL");
 
             var links = browser.FindElements(By.XPath("//li[not(contains(@class, 'tocsection'))]/a[1]"));
             foreach (var url in links)
@@ -42,33 +48,9 @@ namespace ScreenScraperTest
                 programmerLinks.Add(url.GetAttribute("href"));
             }
 
+            Console.WriteLine("Links collected. About to save to CSV");
             WriteToCsv(programmerLinks);
-
-            //// Specify the URL of the webpage you want to scrape
-            //string url = "https://mtd.mitsui.com/en";
-
-            //// Create a new HtmlWeb instance
-            //HtmlWeb web = new HtmlWeb();
-
-            //// Load the HTML document from the specified URL
-            //HtmlDocument document = web.Load(url);
-
-            //// Select the elements you want to scrape using XPath
-            //HtmlNodeCollection nodes = document.DocumentNode.SelectNodes("//*/html/body//a");
-
-            //if (nodes != null)
-            //{
-            //    // Iterate over the selected nodes and print their inner text
-            //    foreach (HtmlNode node in nodes)
-            //    {
-            //        _logger.LogInformation(node.InnerText);
-            //    }
-            //}
-            //else
-            //{
-            //    _logger.LogInformation("No matching elements found.");
-            //}
-            //_logger.LogInformation("Scraper function has completed");
+            Console.WriteLine("Saved to CSV");
         }
 
         private void WriteToCsv(List<string> links)
