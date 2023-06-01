@@ -2,7 +2,7 @@ using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 using OpenQA.Selenium;
-using OpenQA.Selenium.Chrome;
+using OpenQA.Selenium.Edge;
 using System.Text;
 
 namespace ScreenScraperTest
@@ -22,14 +22,18 @@ namespace ScreenScraperTest
             string fullUrl = "https://mtd.mitsui.com/en";
             List<string> programmerLinks = new List<string>();
 
-            var options = new ChromeOptions()
+            var options = new EdgeOptions()
             {
-                BinaryLocation = "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe"
+                BinaryLocation = "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe"
             };
 
             options.AddArguments(new List<string>() { "headless", "disable-gpu" });
 
-            var browser = new ChromeDriver(options);
+            var service = EdgeDriverService.CreateDefaultService();
+            service.Port = 40000;
+            service.Start();
+
+            var browser = new EdgeDriver(service, options);
             browser.Navigate().GoToUrl(fullUrl);
 
             var links = browser.FindElements(By.XPath("//li[not(contains(@class, 'tocsection'))]/a[1]"));
