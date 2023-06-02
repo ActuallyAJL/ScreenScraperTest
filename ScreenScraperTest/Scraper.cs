@@ -3,6 +3,8 @@ using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Edge;
+using OpenQA.Selenium.Firefox;
+using OpenQA.Selenium.Chrome;
 using System.Text;
 
 namespace ScreenScraperTest
@@ -19,25 +21,38 @@ namespace ScreenScraperTest
         [Function("Scraper")]
         public void Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] Microsoft.Azure.Functions.Worker.Http.HttpRequestData req)
         {
-            string fullUrl = "https://mtd.mitsui.com/en/TelephoneDirectory/DivisionPage?dp=DP20160513113";
+            //string fullUrl = "https://www.webscraper.io/test-sites/e-commerce/allinone";
+            //string fullUrl = "https://mtd.mitsui.com/en/TelephoneDirectory/DivisionPage?dp=DP20160513113";
+            string fullUrl = "https://www.regexr.com";
             List<string> programmerLinks = new List<string>();
 
-            var options = new EdgeOptions()
+            Proxy proxy = new Proxy();
+            proxy.ProxyAutoConfigUrl = "http://pac.zscaler.net/P7YrLQRTFscn/americas-proxy_win10.pac";
+            //proxy.IsAutoDetect = true;
+            Console.WriteLine("Proxy created");
+
+            var options = new FirefoxOptions()
             {
-                BinaryLocation = "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe"
+                //BinaryLocation = "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe"
+                BrowserExecutableLocation = "C:\\Program Files\\Mozilla Firefox\\firefox.exe"
             };
             Console.WriteLine("Options created");
 
-            options.AddArguments(new List<string>() { "headless", "disable-gpu" });
-            Console.WriteLine("Added options to arguments");
+            options.Proxy = proxy;
+            Console.WriteLine("Proxy added to options");
 
-            var service = EdgeDriverService.CreateDefaultService();
+            //options.AddArguments(new List<string>() { "headless", "disable-gpu", "no-sandbox", "ignore-certificate-errors" });
+            options.AddArguments(new List<string>() { "-headless", "-disable-gpu", "-no-sandbox", "-ignore-certificate-errors" });
+            Console.WriteLine("Arguments added to options");
+
+            var service = FirefoxDriverService.CreateDefaultService();
             Console.WriteLine("Service Created");
-            service.Port = 40000;
+            //service.Port = 49664;
             service.Start();
             Console.WriteLine("Service started");
 
-            var browser = new EdgeDriver(service, options);
+            var browser = new FirefoxDriver(service, options, TimeSpan.FromMinutes(3));
+            browser.Manage().Timeouts().PageLoad.Add(System.TimeSpan.FromSeconds(30));
             Console.WriteLine("Browser Initialized");
             browser.Navigate().GoToUrl(fullUrl);
             Console.WriteLine("Browser navigated to URL");
@@ -61,7 +76,7 @@ namespace ScreenScraperTest
                 sb.AppendLine(link);
             }
 
-            System.IO.File.WriteAllText("links.csv", sb.ToString());
+            System.IO.File.WriteAllText(@"C:\Users\H1683\Desktop\links.csv", sb.ToString());
         }
     }
 
