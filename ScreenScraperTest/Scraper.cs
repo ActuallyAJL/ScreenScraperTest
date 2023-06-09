@@ -5,6 +5,7 @@ using OpenQA.Selenium;
 using OpenQA.Selenium.Edge;
 using OpenQA.Selenium.Firefox;
 using OpenQA.Selenium.Chrome;
+using OpenQA.Selenium.Support.UI;
 using System.Text;
 
 namespace ScreenScraperTest
@@ -22,8 +23,8 @@ namespace ScreenScraperTest
         public void Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] Microsoft.Azure.Functions.Worker.Http.HttpRequestData req)
         {
             //string fullUrl = "https://www.webscraper.io/test-sites/e-commerce/allinone";
-            //string fullUrl = "https://mtd.mitsui.com/en/TelephoneDirectory/DivisionPage?dp=DP20160513113";
-            string fullUrl = "https://www.regexr.com";
+            string fullUrl = "https://mtd.mitsui.com/en/TelephoneDirectory/DivisionPage?dp=DP20160513113";
+            //string fullUrl = "https://www.regexr.com";
             List<string> programmerLinks = new List<string>();
 
             Proxy proxy = new Proxy();
@@ -31,29 +32,7 @@ namespace ScreenScraperTest
             //proxy.IsAutoDetect = true;
             Console.WriteLine("Proxy created");
 
-            var options = new FirefoxOptions()
-            {
-                //BinaryLocation = "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe"
-                BrowserExecutableLocation = "C:\\Program Files\\Mozilla Firefox\\firefox.exe"
-            };
-            Console.WriteLine("Options created");
-
-            options.Proxy = proxy;
-            Console.WriteLine("Proxy added to options");
-
-            //options.AddArguments(new List<string>() { "headless", "disable-gpu", "no-sandbox", "ignore-certificate-errors" });
-            options.AddArguments(new List<string>() { "-headless", "-disable-gpu", "-no-sandbox", "-ignore-certificate-errors" });
-            Console.WriteLine("Arguments added to options");
-
-            var service = FirefoxDriverService.CreateDefaultService();
-            Console.WriteLine("Service Created");
-            //service.Port = 49664;
-            service.Start();
-            Console.WriteLine("Service started");
-
-            var browser = new FirefoxDriver(service, options, TimeSpan.FromMinutes(3));
-            browser.Manage().Timeouts().PageLoad.Add(System.TimeSpan.FromSeconds(30));
-            Console.WriteLine("Browser Initialized");
+            var browser = BuildFirefoxBrowser(proxy);
             browser.Navigate().GoToUrl(fullUrl);
             Console.WriteLine("Browser navigated to URL");
 
@@ -66,6 +45,37 @@ namespace ScreenScraperTest
             Console.WriteLine("Links collected. About to save to CSV");
             WriteToCsv(programmerLinks);
             Console.WriteLine("Saved to CSV");
+        }
+
+        private FirefoxDriver BuildFirefoxBrowser(Proxy proxy)
+        {
+            var options = new FirefoxOptions()
+            {
+                //BinaryLocation = "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe"
+                BrowserExecutableLocation = "C:\\Program Files\\Mozilla Firefox\\firefox.exe"
+            };
+            Console.WriteLine("Options created");
+
+            options.Proxy = proxy;
+            Console.WriteLine("Proxy added to options");
+
+            options.AddArgument("--headless");
+            //options.AddArgument("--disable-gpu");
+            //options.AddArgument("-no-sandbox");
+            //options.AddArgument("-ignore-certificate-errors");
+            Console.WriteLine("Arguments added to options");
+
+            var service = FirefoxDriverService.CreateDefaultService();
+            Console.WriteLine("Service Created");
+            //service.Port = 49664;
+            service.Start();
+            Console.WriteLine("Service started");
+
+            var browser = new FirefoxDriver(service, options, TimeSpan.FromMinutes(3));
+            browser.Manage().Timeouts().PageLoad.Add(System.TimeSpan.FromSeconds(30));
+            Console.WriteLine("Browser Initialized");
+
+            return browser;
         }
 
         private void WriteToCsv(List<string> links)
