@@ -1,0 +1,30 @@
+{
+    "recommendations": [
+        "ms-azuretools.vscode-azurefunctions",
+        "ms-dotnettools.csharp",
+        "ms-dotnettools.vscode-dotnet-runtime",
+        "bencoleman.armview",
+        "ms-vscode.azure-account",
+        "ms-azuretools.vscode-azureappservice",
+        "ms-vscode.azurecli",
+        "ms-azuretools.vscode-cosmosdb",
+        "ms-azuretools.vscode-azurefunctions",
+        "ms-azure-devops.azure-pipelines",
+        "msazurermtools.azurerm-vscode-tools",
+        "ms-azuretools.vscode-azureresourcegroups",
+        "ms-azuretools.vscode-azurestorage",
+        "ms-vscode.vscode-node-azure-pack",
+        "ms-azuretools.vscode-azurevirtualmachines",
+        "azurite.azurite",
+        "ms-dotnettools.csharp",
+        "ms-azuretools.vscode-docker",
+        "jebbs.plantuml",
+        "ms-vscode.powershell",
+        "esbenp.prettier-vscode",
+        "humao.rest-client",
+        "yatki.vscode-surround",
+        "dotjoshjohnson.xml",
+        "eamodio.gitlens",
+        "streetsidesoftware.code-spell-checker"
+    ]
+}
